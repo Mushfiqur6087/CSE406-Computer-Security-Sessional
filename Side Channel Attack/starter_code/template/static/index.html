@@ -34,9 +34,9 @@
         
         <div class="button-group">
             <button @click="collectLatencyData()" :disabled="isCollecting">Collect Latency Data</button>
-            <!--Implement Collect Trace button. It should call collectTraceData(). -->
-            <!--Implement Download Traces button. It should call downloadTraces(). -->
-            <!--Implement Clear Results button. It should call clearResults(). -->
+            <button @click="collectTraceData()" :disabled="isCollecting">Collect Trace Data</button>
+            <button @click="downloadTraces()" :disabled="isCollecting">Download Traces</button>
+            <button @click="clearResults()" :disabled="isCollecting">Clear Results</button>
         </div>
         
         <div x-show="status" role="alert" x-text="status" 
@@ -66,7 +66,23 @@
         </template>
         
         <!-- Heatmap gallery for all traces -->
-        <!-- Implement UI for showing a list of heatmaps fetched from the server -->
+        <template x-if="heatmaps && heatmaps.length > 0">
+            <div class="heatmaps-container">
+                <h3>Collected Traces Heatmaps</h3>
+                <div class="heatmap-gallery" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    <template x-for="(heatmap, index) in heatmaps" :key="index">
+                        <div class="heatmap-card" style="border: 1px solid #ccc; padding: 1rem; border-radius: 8px;">
+                            <h4 x-text="`Trace ${index + 1}`"></h4>
+                            <img :src="heatmap.image" :alt="`Heatmap ${index + 1}`" style="width: 100%; height: auto;">
+                            <p style="font-size: 0.8em; color: #666;">
+                                <span x-text="`Measurements: ${heatmap.metadata ? heatmap.metadata.measurements : 'N/A'}`"></span><br>
+                                <span x-text="`Period: ${heatmap.metadata ? heatmap.metadata.period : 'N/A'}ms`"></span>
+                            </p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </template>
     </main>
 
     <script src="index.js"></script>

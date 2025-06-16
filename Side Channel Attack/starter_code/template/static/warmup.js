@@ -68,16 +68,6 @@ self.addEventListener("message", function (e) {
       }
       
       results[n] = timing;
-      
-      // Also test some intermediate values for more granular data
-      if (n < 10000000) {
-        // Test n * 5 as well (5, 50, 500, etc.)
-        const intermediateN = n * 5;
-        const intermediateTiming = readNlines(intermediateN);
-        if (intermediateTiming !== null) {
-          results[intermediateN] = intermediateTiming;
-        }
-      }
     }
 
     self.postMessage(results);
