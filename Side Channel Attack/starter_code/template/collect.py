@@ -282,22 +282,14 @@ async def collect_fingerprints(browser, target_counts=None):
         
         collected_for_site = 0
         for trace_num in range(needed):
-            current_total = database.db.get_traces_collected().get(website_url, 0) + collected_for_site
             print(f"\n   📊 Collecting trace {trace_num + 1}/{needed} for {website_url}")
-            print(f"   📈 Current progress: {current_total}/{TRACES_PER_SITE} total traces for this site")
             
             success = await collect_single_trace(browser, website_url, website_index)
             
             if success:
                 collected_for_site += 1
                 total_collected += 1
-                # Get the current total from database to show accurate progress
-                current_db_total = database.db.get_traces_collected().get(website_url, 0)
-                # Ensure we don't exceed the target in the progress bar
-                display_total = min(current_db_total, TRACES_PER_SITE)
-                progress_bar = '█' * display_total + '░' * (TRACES_PER_SITE - display_total)
                 print(f"   ✅ Trace {trace_num + 1} collected successfully!")
-                print(f"   📊 Progress: [{progress_bar}] {display_total}/{TRACES_PER_SITE}")
             else:
                 print(f"   ❌ Failed to collect trace {trace_num + 1}")
             
