@@ -1,0 +1,61 @@
+{
+  "classification_report": {
+    "https://prothomalo.com": {
+      "precision": 0.7810590631364562,
+      "recall": 0.8088584234115476,
+      "f1-score": 0.7947157104002073,
+      "support": 3793.0
+    },
+    "https://cse.buet.ac.bd/moodle/": {
+      "precision": 0.7972602739726027,
+      "recall": 0.7672027418929607,
+      "f1-score": 0.7819427650141072,
+      "support": 3793.0
+    },
+    "https://google.com": {
+      "precision": 0.920906933825468,
+      "recall": 0.9228533685601057,
+      "f1-score": 0.9218791237793613,
+      "support": 3785.0
+    },
+    "accuracy": 0.8329082754375164,
+    "macro avg": {
+      "precision": 0.8330754236448423,
+      "recall": 0.8329715112882047,
+      "f1-score": 0.8328458663978919,
+      "support": 11371.0
+    },
+    "weighted avg": {
+      "precision": 0.8330136303037602,
+      "recall": 0.8329082754375164,
+      "f1-score": 0.8327832275746527,
+      "support": 11371.0
+    }
+  },
+  "final_results": {
+    "best_validation_accuracy": "N/A (model was pre-trained)",
+    "final_test_accuracy": 0.8329082754375164
+  },
+  "model_info": {
+    "model_name": "AttentionCNNClassifier",
+    "test_accuracy": 0.8329082754375164,
+    "dataset_split": {
+      "train": 34111,
+      "validation": 11371,
+      "test": 11371
+    },
+    "hyperparameters": {
+      "batch_size": 64,
+      "epochs": 300,
+      "learning_rate": 5e-05,
+      "hidden_size": 1024,
+      "input_size": 1000,
+      "patience": 25
+    }
+  },
+  "website_names": [
+    "https://prothomalo.com",
+    "https://cse.buet.ac.bd/moodle/",
+    "https://google.com"
+  ]
+}
