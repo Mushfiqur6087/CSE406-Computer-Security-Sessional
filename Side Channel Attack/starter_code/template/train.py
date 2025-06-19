@@ -10,7 +10,7 @@ from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import StandardScaler
 
 # Configuration
-DATASET_PATH = "dataset.json"
+DATASET_PATH = "Dataset/dataset.json"
 MODELS_DIR = "saved_models"
 BATCH_SIZE = 64
 EPOCHS = 50  

@@ -1,0 +1,3 @@
+LLCSIZE = 16MB
+
+OS -> Linux (data taken while device was completely idle. Only VSCode and selenium using Chromium was running.) 
