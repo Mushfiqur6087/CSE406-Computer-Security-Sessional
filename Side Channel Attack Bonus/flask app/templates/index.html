@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Fingerprinting Prediction</title>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .loading-spinner {
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div x-data="websitePrediction()" class="min-h-screen">
+        <!-- Header -->
+        <header class="gradient-bg text-white py-6 shadow-lg">
+            <div class="container mx-auto px-4">
+                <h1 class="text-4xl font-bold text-center mb-2">
+                    <i class="fas fa-search-location mr-3"></i>
+                    Website Fingerprinting Prediction
+                </h1>
+                <p class="text-center text-lg opacity-90">
+                    AI-powered website identification using network traffic analysis
+                </p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="container mx-auto px-4 py-8">
+            <!-- Prediction Section -->
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-microchip mr-2 text-purple-600"></i>
+                        Side Channel Attack
+                    </h2>
+                    <p class="text-gray-600 text-lg mb-4">
+                        Perform a side-channel attack using cache sweep techniques to identify which website you're visiting based on memory access patterns
+                    </p>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-left">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-800">
+                                    <strong>Note:</strong> Modern browsers have security measures that may limit the effectiveness of timing-based side channel attacks. 
+                                    This demonstration may fall back to simulated data if real cache sweep data cannot be collected.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prediction Button -->
+                <div class="flex justify-center mb-8">
+                    <button 
+                        @click="predictWebsite()"
+                        :disabled="loading"
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 
+                               text-white font-bold py-4 px-8 rounded-full text-xl shadow-lg transform transition-all duration-200 
+                               hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        :class="{ 'pulse-animation': !loading }"
+                    >
+                        <span x-show="!loading" class="flex items-center">
+                            <i class="fas fa-microchip mr-3"></i>
+                            Start Cache Sweep Analysis
+                        </span>
+                        <span x-show="loading" class="flex items-center">
+                            <div class="loading-spinner border-4 border-white border-t-transparent rounded-full w-6 h-6 mr-3"></div>
+                            Collecting Cache Data...
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Status Information -->
+                <div x-show="loading" x-transition class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <div class="loading-spinner border-4 border-blue-400 border-t-transparent rounded-full w-5 h-5"></div>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-lg font-medium text-blue-800">Performing Side Channel Attack</h4>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <p class="mb-1">• Sweeping Last Level Cache (LLC) for 10 seconds</p>
+                                <p class="mb-1">• Measuring cache line access patterns</p>
+                                <p class="mb-1">• Collecting timing-based fingerprints</p>
+                                <p>• Analyzing network traffic signatures</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div x-show="prediction" x-transition class="mt-8">
+                    <!-- Main Prediction Result -->
+                    <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg p-6 mb-6 card-shadow">
+                        <div class="text-center">
+                            <h3 class="text-2xl font-bold mb-2">
+                                <i class="fas fa-globe mr-2"></i>
+                                Prediction Result
+                            </h3>
+                            <div class="text-4xl font-bold mb-2" x-text="prediction?.predicted_website"></div>
+                            <div class="text-lg opacity-90">
+                                Confidence: <span x-text="prediction?.confidence_percentage?.toFixed(1)"></span>%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Probabilities -->
+                    <div class="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-chart-bar mr-2 text-blue-600"></i>
+                            Detailed Probabilities
+                        </h4>
+                        <div class="space-y-4">
+                            <template x-for="prob in prediction?.all_probabilities" :key="prob.website">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-medium text-gray-700" x-text="prob.website"></span>
+                                            <span class="text-sm text-gray-500" x-text="prob.percentage.toFixed(1) + '%'"></span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" 
+                                                 :style="'width: ' + prob.percentage + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Network Trace Visualization -->
+                    <div class="bg-white rounded-lg border-2 border-gray-200 p-6">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-wave-square mr-2 text-green-600"></i>
+                            Cache Sweep Trace
+                        </h4>
+                        <div class="bg-gray-50 rounded p-4">
+                            <canvas id="traceChart" width="400" height="200"></canvas>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-4">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            This chart shows cache sweep measurements used for website fingerprinting analysis
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- Error Message -->
+                <div x-show="error" x-transition class="mt-8">
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <strong class="font-bold">Error!</strong>
+                        <span class="block sm:inline" x-text="error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Information Section -->
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                    Model Information
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Supported Websites -->
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-blue-800 mb-4">
+                            <i class="fas fa-list mr-2"></i>
+                            Supported Websites
+                        </h4>
+                        <ul class="space-y-2">
+                            {% for website in websites %}
+                            <li class="flex items-center text-gray-700">
+                                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                                {{ website }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Model Performance -->
+                    <div class="bg-purple-50 rounded-lg p-6">
+                        <h4 class="text-lg font-semibold text-purple-800 mb-4">
+                            <i class="fas fa-chart-line mr-2"></i>
+                            Cross-Validation Model Performance
+                        </h4>
+                        {% if model_results %}
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4 border border-purple-200">
+                                <h5 class="font-semibold text-purple-700 mb-2">Selected Best Model</h5>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-700">Model Type:</span>
+                                        <span class="font-semibold text-purple-700">{{ model_results.selected_model }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-700">Best Fold:</span>
+                                        <span class="font-semibold text-blue-600">Fold {{ model_results.selected_fold }}</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-700">Accuracy:</span>
+                                        <span class="font-semibold text-green-600">{{ "%.2f"|format(model_results.selected_accuracy * 100) }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-4 border border-blue-200">
+                                    <h5 class="font-semibold text-blue-700 mb-2">Basic Model</h5>
+                                    <div class="space-y-1 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Avg Accuracy:</span>
+                                            <span class="font-medium">{{ "%.2f"|format(model_results.basic_avg_accuracy * 100) }}%</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Best Fold:</span>
+                                            <span class="font-medium">{{ model_results.best_basic_fold.fold }} ({{ "%.2f"|format(model_results.best_basic_fold.val_accuracy * 100) }}%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-lg p-4 border border-green-200">
+                                    <h5 class="font-semibold text-green-700 mb-2">Complex Model</h5>
+                                    <div class="space-y-1 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Avg Accuracy:</span>
+                                            <span class="font-medium">{{ "%.2f"|format(model_results.complex_avg_accuracy * 100) }}%</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Best Fold:</span>
+                                            <span class="font-medium">{{ model_results.best_complex_fold.fold }} ({{ "%.2f"|format(model_results.best_complex_fold.val_accuracy * 100) }}%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-gray-600">Cross-validation results not available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="gradient-bg text-white py-6 mt-12">
+            <div class="container mx-auto px-4 text-center">
+                <p class="text-lg opacity-90">
+                    <i class="fas fa-shield-alt mr-2"></i>
+                    Website Fingerprinting Demo - CSE406 Computer Security Sessional
+                </p>
+                <p class="text-sm opacity-75 mt-2">
+                    This is a demonstration of side-channel attack techniques for educational purposes
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function websitePrediction() {
+            return {
+                loading: false,
+                prediction: null,
+                error: null,
+                chart: null,
+                worker: null,
+
+                init() {
+                    // Initialize the worker
+                    this.worker = new Worker('/static/worker.js');
+                    this.worker.addEventListener('message', (e) => {
+                        this.handleWorkerMessage(e.data);
+                    });
+                    this.worker.addEventListener('error', (e) => {
+                        console.error('Worker error:', e);
+                        this.error = 'Cache sweep worker error: ' + e.message;
+                        this.loading = false;
+                    });
+                },
+
+                async predictWebsite() {
+                    this.loading = true;
+                    this.error = null;
+                    this.prediction = null;
+
+                    try {
+                        // Start cache sweep collection
+                        console.log('Starting cache sweep collection...');
+                        this.worker.postMessage('start');
+                    } catch (err) {
+                        this.error = 'Failed to start cache sweep: ' + err.message;
+                        this.loading = false;
+                    }
+                },
+
+                async handleWorkerMessage(data) {
+                    if (data.success) {
+                        console.log('Cache sweep completed, making prediction...');
+                        
+                        try {
+                            const response = await fetch('/predict', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    traces: data.traces,
+                                    metadata: data.metadata
+                                })
+                            });
+
+                            const result = await response.json();
+
+                            if (result.error) {
+                                this.error = result.error;
+                            } else {
+                                this.prediction = result;
+                                // Update chart after prediction is set
+                                this.$nextTick(() => {
+                                    this.updateChart(result.trace_info?.trace_sample || data.traces.slice(0, 50));
+                                });
+                            }
+                        } catch (err) {
+                            this.error = 'Failed to make prediction: ' + err.message;
+                        }
+                    } else {
+                        this.error = data.error || 'Cache sweep failed';
+                    }
+                    
+                    this.loading = false;
+                },
+
+                updateChart(traceData) {
+                    const ctx = document.getElementById('traceChart');
+                    if (!ctx) return;
+
+                    // Destroy existing chart if it exists
+                    if (this.chart) {
+                        this.chart.destroy();
+                    }
+
+                    this.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: traceData.map((_, i) => i), // Simple index labels
+                            datasets: [{
+                                label: 'Cache Sweep Count',
+                                data: traceData,
+                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.1,
+                                pointRadius: 2,
+                                pointHoverRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Cache Access Pattern Over Time'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Cache Sweep Count'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Sample Index'
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
