@@ -8,6 +8,7 @@ from torch.utils.data import Dataset, DataLoader, Subset
 from sklearn.metrics import classification_report
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
 
 # Configuration
 DATASET_PATH = "Dataset/dataset.json"
@@ -521,6 +522,109 @@ def evaluate(model, test_loader, website_names, model_name="Model"):
     return test_accuracy, classification_metrics
 
 
+def plot_training_history(basic_history, complex_history, save_dir="saved_models", basic_name="Basic FingerprintClassifier", complex_name="Complex FingerprintClassifier"):
+    """
+    Plot training and validation accuracy vs epoch for both Basic and Complex classifiers.
+    
+    Args:
+        basic_history: Training history dictionary for basic model
+        complex_history: Training history dictionary for complex model  
+        save_dir: Directory to save the plot images
+    """
+    # Ensure save directory exists
+    os.makedirs(save_dir, exist_ok=True)
+    
+    # Set up the plotting style
+    plt.style.use('default')
+    plt.rcParams['figure.figsize'] = (12, 8)
+    plt.rcParams['font.size'] = 12
+    
+    # Create subplots - 2 rows, 1 column
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
+    
+    # Plot 1: Basic Classifier
+    epochs_basic = range(1, len(basic_history['train_accuracies']) + 1)
+    ax1.plot(epochs_basic, basic_history['train_accuracies'], 'b-o', label='Training Accuracy', linewidth=2, markersize=4)
+    ax1.plot(epochs_basic, basic_history['val_accuracies'], 'orange', marker='o', label='Validation Accuracy', linewidth=2, markersize=4)
+    ax1.set_title(f'{basic_name} - Accuracy vs. Epochs', fontsize=14, fontweight='bold')
+    ax1.set_xlabel('Epoch', fontsize=12)
+    ax1.set_ylabel('Accuracy', fontsize=12)
+    ax1.legend(fontsize=11)
+    ax1.grid(True, alpha=0.3)
+    ax1.set_ylim(0, 1.0)
+    
+    # Add text annotation for best epoch
+    best_epoch_basic = basic_history['best_epoch']
+    if best_epoch_basic <= len(basic_history['val_accuracies']):
+        best_val_acc_basic = basic_history['val_accuracies'][best_epoch_basic - 1]
+        ax1.annotate(f'Best: Epoch {best_epoch_basic}\nAcc: {best_val_acc_basic:.3f}', 
+                    xy=(best_epoch_basic, best_val_acc_basic), 
+                    xytext=(best_epoch_basic + 5, best_val_acc_basic - 0.1),
+                    arrowprops=dict(arrowstyle='->', color='red', alpha=0.7),
+                    fontsize=10, bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+    
+    # Plot 2: Complex Classifier  
+    epochs_complex = range(1, len(complex_history['train_accuracies']) + 1)
+    ax2.plot(epochs_complex, complex_history['train_accuracies'], 'b-o', label='Training Accuracy', linewidth=2, markersize=4)
+    ax2.plot(epochs_complex, complex_history['val_accuracies'], 'orange', marker='o', label='Validation Accuracy', linewidth=2, markersize=4)
+    ax2.set_title(f'{complex_name} - Accuracy vs. Epochs', fontsize=14, fontweight='bold')
+    ax2.set_xlabel('Epoch', fontsize=12)
+    ax2.set_ylabel('Accuracy', fontsize=12)
+    ax2.legend(fontsize=11)
+    ax2.grid(True, alpha=0.3)
+    ax2.set_ylim(0, 1.0)
+    
+    # Add text annotation for best epoch
+    best_epoch_complex = complex_history['best_epoch']
+    if best_epoch_complex <= len(complex_history['val_accuracies']):
+        best_val_acc_complex = complex_history['val_accuracies'][best_epoch_complex - 1]
+        ax2.annotate(f'Best: Epoch {best_epoch_complex}\nAcc: {best_val_acc_complex:.3f}', 
+                    xy=(best_epoch_complex, best_val_acc_complex), 
+                    xytext=(best_epoch_complex + 5, best_val_acc_complex - 0.1),
+                    arrowprops=dict(arrowstyle='->', color='red', alpha=0.7),
+                    fontsize=10, bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
+    
+    plt.tight_layout()
+    
+    # Save the plot
+    plot_path = os.path.join(save_dir, "training_accuracy_comparison.png")
+    plt.savefig(plot_path, dpi=300, bbox_inches='tight')
+    print(f"📊 Training accuracy plots saved to: {plot_path}")
+    
+    # Also create individual plots similar to the provided image style
+    plt.figure(figsize=(10, 6))
+    plt.plot(epochs_basic, basic_history['train_accuracies'], 'b-o', label='Training Accuracy', linewidth=2, markersize=4)
+    plt.plot(epochs_basic, basic_history['val_accuracies'], 'orange', marker='o', label='Validation Accuracy', linewidth=2, markersize=4)
+    plt.title(f'{basic_name} - Accuracy vs. Epochs', fontsize=14, fontweight='bold')
+    plt.xlabel('Epoch', fontsize=12)
+    plt.ylabel('Accuracy', fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.ylim(0, 1.0)
+    
+    # Save individual basic classifier plot
+    basic_plot_path = os.path.join(save_dir, "basic_classifier_accuracy.png")
+    plt.savefig(basic_plot_path, dpi=300, bbox_inches='tight')
+    print(f"📊 Basic classifier plot saved to: {basic_plot_path}")
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(epochs_complex, complex_history['train_accuracies'], 'b-o', label='Training Accuracy', linewidth=2, markersize=4)
+    plt.plot(epochs_complex, complex_history['val_accuracies'], 'orange', marker='o', label='Validation Accuracy', linewidth=2, markersize=4)
+    plt.title(f'{complex_name} - Accuracy vs. Epochs', fontsize=14, fontweight='bold')
+    plt.xlabel('Epoch', fontsize=12)
+    plt.ylabel('Accuracy', fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.ylim(0, 1.0)
+    
+    # Save individual complex classifier plot
+    complex_plot_path = os.path.join(save_dir, "complex_classifier_accuracy.png")
+    plt.savefig(complex_plot_path, dpi=300, bbox_inches='tight')
+    print(f"📊 Complex classifier plot saved to: {complex_plot_path}")
+    
+    plt.close('all')  # Close all figures to free memory
+
+
 def main():
     """ Implement the main function to train and evaluate the models.
     1. Load the dataset from the JSON file, probably using a custom Dataset class
@@ -665,6 +769,10 @@ def main():
             'training_history': history2
         }
         
+        # Generate training accuracy plots
+        print("\n📊 Generating training accuracy plots...")
+        plot_training_history(history1, history2, MODELS_DIR)
+        
         # 6. Print comparison of results
         print("\n" + "="*60)
         print("🏆 FINAL MODEL COMPARISON")
@@ -716,10 +824,16 @@ def main():
         with open(results_path, 'w') as f:
             json.dump(results_summary, f, indent=2)
         
-        print(f"\n💾 Models saved:")
+        print(f"\n💾 Models and results saved:")
         print(f"   - Basic Model: {model1_path}")
         print(f"   - Complex Model: {model2_path}")
         print(f"   - Results Summary: {results_path}")
+        print(f"   - Training Plots: {MODELS_DIR}/training_accuracy_comparison.png")
+        print(f"   - Basic Classifier Plot: {MODELS_DIR}/basic_classifier_accuracy.png")
+        print(f"   - Complex Classifier Plot: {MODELS_DIR}/complex_classifier_accuracy.png")
+        
+        # Plot training history
+        plot_training_history(history1, history2, "saved_models")
         
         print("\n" + "="*60)
         print("✅ TRAINING COMPLETED SUCCESSFULLY!")
